@@ -1,0 +1,3 @@
+Cross-selling is a common selling practice in which addittional products or services are offered to current customers. In this assignment you will use Machine Learning techniques on client of an insurance company that has suscribed a health insurance in order to predict if they could be interested in a vehicle insurance provided by the same company. 
+
+
