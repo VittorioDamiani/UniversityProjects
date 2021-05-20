@@ -1,3 +1,10 @@
-Video content is the most important data type  on the information traffic across the Internet. This deluge of data together with resource limitations (as network bandwidth or device computation capabilities) demands the use of compressed video formats. Video transcoding is the process of modifying the compressed video representation from one format to another and represents a key element when quality standards must be ensured.
-Transcoding is a daunting task in terms of computational resources. Therefore, the estimation of transcoding processing time is a piece of valuable information on developing suitable strategies for video traffic, and in consequence on the improvement of user experience.
-In this assignment, I will use regression techniques to predict the transcoding time of a video based on several parameters (duration, bitrate, size, codec, etc) of both, input and output compression format. 
+Video content is the most important data type  on the information traffic across the Internet.
+This deluge of data together with resource limitations (as network bandwidth or device computation capabilities)
+demands the use of compressed video formats. Video transcoding is the process of modifying 
+the compressed video representation from one format to another and represents a key element when quality standards must be ensured.
+Transcoding is a daunting task in terms of computational resources.
+Therefore, the estimation of transcoding processing time is a piece of valuable information
+on developing suitable strategies for video traffic, and in consequence on the improvement of user experience.
+In this assignment, I will use regression techniques to predict the transcoding
+time of a video based on several parameters (duration, bitrate, size, codec, etc) of both,
+input and output compression format. 
