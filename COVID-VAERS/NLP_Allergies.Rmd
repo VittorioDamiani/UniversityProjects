@@ -1,0 +1,225 @@
+---
+title: "Allergies"
+author: "BABDGroup3"
+---
+
+```{r}
+library('tm')
+library('proxy')
+library('ggplot2')
+library('wordcloud')
+library('textstem')
+```
+
+Import data
+```{r}
+serious <- read.csv(file="2021VAERSDATA+VAX_serious.csv") 
+non_serious <- read.csv(file="2021VAERSDATA+VAX_nonserious.csv")
+```
+
+***********************
+* Serious - ALLERGIES *
+***********************
+
+Remove rows with missing ALLERGIES
+```{r}
+serious <- subset(serious, ALLERGIES=!"")
+```
+
+Load SYMPTOM_TEXT as corpus
+```{r}
+allergy <- VCorpus(VectorSource(serious$ALLERGIES)) 
+allergy[[2]]$content
+```
+
+----------------------------Text cleaning------------------------------------------------------------------------------
+
+1) Remove punctuation and numbers
+```{r}
+allergy <- tm_map(allergy,removePunctuation)
+allergy <- tm_map(allergy,removeNumbers)
+allergy[[2]]$content
+```
+
+2) Convert to lowercase
+```{r}
+allergy <- tm_map(allergy,content_transformer(tolower))
+allergy[[2]]$content
+```
+
+3) Remove stopwords and strip unnecesary whitespace
+```{r}
+allergy <- tm_map(allergy, removeWords, stopwords("english"))
+allergy <- tm_map(allergy, stripWhitespace)
+allergy[[2]]$content
+```
+
+Lemmatize using textstem
+```{r}
+library(textreg)
+strings <- convert.tm.to.character(allergy)
+```
+
+```{r}
+strings_lem <- lemmatize_strings(strings)
+```
+
+```{r}
+allergy_lem <- VCorpus(VectorSource(strings_lem))
+allergy_lem[[2]]$content
+```
+
+-------------------------------Document-terms matrix-------------------------------------------------------------------
+
+Create the document-terms matrix
+```{r}
+dtm <- DocumentTermMatrix(allergy_lem)
+dtmmtx <- as.matrix(dtm)
+```
+
+Terms and their frequencies
+```{r}
+freq <- colSums(as.matrix(dtm)) 
+wf <- data.frame(word=names(freq),freq=freq)
+```
+
+```{r}
+dtms <- removeSparseTerms(dtm, 0.99)
+freq <- colSums(as.matrix(dtms)) 
+wf <- data.frame(word=names(freq),freq=freq)
+```
+
+------------------------------Data viz---------------------------------------------------------------------------------
+
+Display the remaining terms according to their frequencies
+```{r}
+p <- ggplot(subset(wf),aes(word, freq))    
+p <- p + geom_bar(stat="identity")   
+p <- p + theme(axis.text.x=element_text(angle=90, hjust=1))   
+p
+```
+
+Display the clouds of words
+```{r fig.height=7, fig.width=7}
+png('Allergies_Serious.png')
+wordcloud(names(freq),freq,scale=c(5,0.1),colors=brewer.pal(6,"Dark2")) 
+```
+
+***************************
+* Non Serious - ALLERGIES *
+***************************
+
+Remove rows with missing ALLERGIES
+```{r}
+non_serious <- subset(non_serious, ALLERGIES=!"")
+```
+
+Load SYMPTOM_TEXT as corpus
+```{r}
+allergy2 <- VCorpus(VectorSource(non_serious$ALLERGIES)) 
+allergy2[[2]]$content
+```
+
+----------------------------Text cleaning------------------------------------------------------------------------------
+
+1) Remove punctuation and numbers
+```{r}
+allergy2 <- tm_map(allergy2,removePunctuation)
+allergy2 <- tm_map(allergy2,removeNumbers)
+allergy2[[2]]$content
+```
+
+2) Convert to lowercase
+```{r}
+allergy2 <- tm_map(allergy2,content_transformer(tolower))
+allergy2[[2]]$content
+```
+
+3) Remove stopwords and strip unnecesary whitespace
+```{r}
+allergy2 <- tm_map(allergy2, removeWords, stopwords("english"))
+allergy2 <- tm_map(allergy2, stripWhitespace)
+allergy2[[2]]$content
+```
+
+Lemmatize using textstem
+```{r}
+library(textreg)
+strings2 <- convert.tm.to.character(allergy2)
+```
+
+```{r}
+strings_lem2 <- lemmatize_strings(strings2)
+```
+
+```{r}
+allergy_lem2 <- VCorpus(VectorSource(strings_lem2))
+allergy_lem2[[2]]$content
+```
+
+-------------------------------Document-terms matrix-------------------------------------------------------------------
+
+Create the document-terms matrix
+```{r}
+dtm2 <- DocumentTermMatrix(allergy_lem2)
+dtmmtx2 <- as.matrix(dtm2)
+```
+
+Terms and their frequencies
+```{r}
+freq2 <- colSums(as.matrix(dtm2)) 
+wf2 <- data.frame(word=names(freq2),freq=freq2)
+```
+
+```{r}
+dtms2 <- removeSparseTerms(dtm2, 0.99)
+freq2 <- colSums(as.matrix(dtms2)) 
+wf2 <- data.frame(word=names(freq2),freq=freq2)
+```
+
+------------------------------Data viz---------------------------------------------------------------------------------
+
+Display the remaining terms according to their frequencies
+```{r}
+p2 <- ggplot(subset(wf2),aes(word, freq2))    
+p2 <- p2 + geom_bar(stat="identity")   
+p2 <- p2 + theme(axis.text.x=element_text(angle=90, hjust=1))   
+p2
+```
+
+Display the clouds of words
+```{r fig.height=7, fig.width=7}
+png('Allergies_Non_Serious.png')
+wordcloud(names(freq2),freq2,scale=c(5,0.1),colors=brewer.pal(6,"Dark2")) 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,231 @@
+---
+title: "History"
+author: "BABDGroup3"
+---
+
+```{r}
+library('tm')
+library('proxy')
+library('ggplot2')
+library('wordcloud')
+library('textstem')
+```
+
+Import data
+```{r}
+serious <- read.csv(file="2021VAERSDATA+VAX_serious.csv") 
+non_serious <- read.csv(file="2021VAERSDATA+VAX_nonserious.csv")
+```
+
+*********************
+* Serious - HISTORY *
+*********************
+
+Remove rows with missing HISTORY
+```{r}
+serious <- subset(serious, HISTORY=!"")
+```
+
+Load SYMPTOM_TEXT as corpus
+```{r}
+history <- VCorpus(VectorSource(serious$HISTORY)) 
+history[[2]]$content
+```
+
+----------------------------Text cleaning------------------------------------------------------------------------------
+
+1) Remove punctuation and numbers
+```{r}
+history <- tm_map(history,removePunctuation)
+history <- tm_map(history,removeNumbers)
+history[[2]]$content
+```
+
+2) Convert to lowercase
+```{r}
+history <- tm_map(history,content_transformer(tolower))
+history[[2]]$content
+```
+
+3) Remove stopwords and strip unnecesary whitespace
+```{r}
+history <- tm_map(history, removeWords, stopwords("english"))
+history <- tm_map(history, stripWhitespace)
+history[[2]]$content
+```
+
+Lemmatize using textstem
+```{r}
+library(textreg)
+strings <- convert.tm.to.character(history)
+```
+
+```{r}
+strings_lem <- lemmatize_strings(strings)
+```
+
+```{r}
+history_lem <- VCorpus(VectorSource(strings_lem))
+history_lem[[2]]$content
+```
+
+-------------------------------Document-terms matrix------------------------------------------------------------------
+
+Create the document-terms matrix
+```{r}
+dtm <- DocumentTermMatrix(history_lem)
+dtmmtx <- as.matrix(dtm)
+```
+
+Terms and their frequencies
+```{r}
+freq <- colSums(as.matrix(dtm)) 
+wf <- data.frame(word=names(freq),freq=freq)
+```
+
+```{r}
+dtms <- removeSparseTerms(dtm, 0.99)
+freq <- colSums(as.matrix(dtms)) 
+wf <- data.frame(word=names(freq),freq=freq)
+```
+
+Manually remove some "common" words
+```{r}
+'%!in%' <- function(x,y)!('%in%'(x,y))
+wf <- subset(wf, wf$word %!in% c("none", "unspecified", "history", "historyconcurrent", "leave", "unknown",
+                                 "condition", "relevant", "without", "type", "high", "have", "due",
+                                 "primary", "stage", "right", "list", "essential"))
+```
+
+------------------------------Data viz--------------------------------------------------------------------------------
+
+Display the remaining terms according to their frequencies
+```{r}
+p <- ggplot(subset(wf),aes(word, freq))    
+p <- p + geom_bar(stat="identity")   
+p <- p + theme(axis.text.x=element_text(angle=90, hjust=1))   
+p
+```
+
+Display the clouds of words
+```{r fig.height=7, fig.width=7}
+png('History_Serious.png')
+wordcloud(wf$word,wf$freq,scale=c(5,0.1),colors=brewer.pal(6,"Dark2")) 
+```
+
+*************************
+* Non Serious - HISTORY *
+*************************
+
+Remove rows with missing HISTORY
+```{r}
+non_serious <- subset(non_serious, HISTORY=!"")
+```
+
+Load SYMPTOM_TEXT as corpus
+```{r}
+history2 <- VCorpus(VectorSource(non_serious$HISTORY)) 
+history2[[2]]$content
+```
+
+----------------------------Text cleaning------------------------------------------------------------------------------
+
+1) Remove punctuation and numbers
+```{r}
+history2 <- tm_map(history2,removePunctuation)
+history2 <- tm_map(history2,removeNumbers)
+history2[[2]]$content
+```
+
+2) Convert to lowercase
+```{r}
+history2 <- tm_map(history2,content_transformer(tolower))
+history2[[2]]$content
+```
+
+3) Remove stopwords and strip unnecesary whitespace
+```{r}
+history2 <- tm_map(history2, removeWords, stopwords("english"))
+history2 <- tm_map(history2, stripWhitespace)
+history2[[2]]$content
+```
+
+Lemmatize using textstem
+```{r}
+library(textreg)
+strings2 <- convert.tm.to.character(history2)
+```
+
+```{r}
+strings_lem2 <- lemmatize_strings(strings2)
+```
+
+```{r}
+history_lem2 <- VCorpus(VectorSource(strings_lem2))
+history_lem2[[2]]$content
+```
+
+-------------------------------Document-terms matrix-------------------------------------------------------------------
+
+Create the document-terms matrix
+```{r}
+dtm2 <- DocumentTermMatrix(history_lem2)
+dtmmtx2 <- as.matrix(dtm2)
+```
+
+Terms and their frequencies
+```{r}
+freq2 <- colSums(as.matrix(dtm2)) 
+wf2 <- data.frame(word=names(freq2),freq=freq2)
+```
+
+```{r}
+dtms2 <- removeSparseTerms(dtm2, 0.99)
+freq2 <- colSums(as.matrix(dtms2)) 
+wf2 <- data.frame(word=names(freq2),freq=freq2)
+```
+
+Manually remove some "common" words
+```{r}
+'%!in%' <- function(x,y)!('%in%'(x,y))
+wf2 <- subset(wf2, wf2$word %!in% c("none", "relevant", "condition", "patient", "list", "historyconcurrent",
+                                    "year", "type", "high", "nonencoded"))
+```
+
+------------------------------Data viz---------------------------------------------------------------------------------
+
+Display the remaining terms according to their frequencies
+```{r}
+p2 <- ggplot(subset(wf2),aes(word, freq))    
+p2 <- p2 + geom_bar(stat="identity")   
+p2 <- p2 + theme(axis.text.x=element_text(angle=90, hjust=1))   
+p2
+```
+
+Display the clouds of words
+```{r fig.height=7, fig.width=7}
+png('History_Non_Serious.png')
+wordcloud(wf2$word,wf2$freq,scale=c(5,0.1),colors=brewer.pal(6,"Dark2")) 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
